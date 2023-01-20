@@ -1,7 +1,10 @@
 const {getCategory} = require('./categorize');
 const {MONTHS, KNOWN_TRANSACTION_TYPES, INTERNAL, TERMINAL, BENEFICIARY, ORDONATOR, IGNORED} = require('./constants');
 
-const parseFloatLocale = number => Number.parseFloat(number.replace('.', '').replace(',', '.')) || undefined;
+const parseFloatLocale = number => {
+	const localeNumber = number.replace('.', '').replace(',', '.');
+	return Number.parseFloat(localeNumber) || undefined;
+};
 
 function CSVToArray(CSV_string, delimiter = ',') {
 	const delimiters = `(\\${delimiter}|\\r?\\n|\\r|^)`;
@@ -42,6 +45,7 @@ function CSVToArray(CSV_string, delimiter = ',') {
 	// Return the parsed data Array
 	return rows;
 }
+
 function removeRedundantColumns(array) {
 	return array
 		.map(row => {
@@ -64,6 +68,7 @@ function removeRedundantColumns(array) {
 		});
 
 }
+
 function transformCSVToJSON(csv) {
 	const rows = removeRedundantColumns(CSVToArray(csv));
 	return rows.reduce((finalData, currentRow) => {
@@ -119,8 +124,11 @@ function getTarget(type, details) {
 function getFormattedRow(date, value, target, category) {
 	const [day, monthName, year] = date.split(' ');
 	const formattedDate = `${MONTHS[monthName]}/${day}/${year}`;
-	return `${formattedDate}	${value.toFixed(2).toString().padStart(9, ' ')}	${target.padEnd(50, ' ')}	${category}`;
+	const formattedValue = value.toFixed(2).toString().padStart(9, ' ');
+	const formatterTarget = target.padEnd(50, ' ');
+	return `${formattedDate}	${formattedValue}	${formatterTarget}	${category}`;
 }
+
 function generateReportFromJSON(rows) {
 	const transactions = [];
 	const incomes = [];
