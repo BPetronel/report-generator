@@ -1,5 +1,15 @@
 const {getCategory} = require('./categorize');
-const {MONTHS, KNOWN_TRANSACTION_TYPES, INTERNAL, TERMINAL, BENEFICIARY, ORDONATOR, IGNORED} = require('./constants');
+const {
+	MONTHS,
+	KNOWN_TRANSACTION_TYPES,
+	INTERNAL,
+	TERMINAL,
+	BENEFICIARY,
+	ORDONATOR,
+	IGNORED
+} = require('./constants');
+
+const ACCOUNT_OWNER = 'Boicu Claudiu- Petronel';
 
 const parseFloatLocale = number => {
 	const localeNumber = number.replace('.', '').replace(',', '.');
@@ -11,7 +21,10 @@ function CSVToArray(CSV_string, delimiter = ',') {
 	const quotedFields = '(?:"([^"]*(?:""[^"]*)*)"|';
 	const standardFields = `([^"\\${delimiter}\\r\\n]*))`;
 	// regular expression to parse the CSV values.
-	const pattern = new RegExp(`${delimiters}${quotedFields}${standardFields}`, 'gi');
+	const pattern = new RegExp(
+		`${delimiters}${quotedFields}${standardFields}`,
+		'gi'
+	);
 	// array to hold our data. First row is column headers.
 	// array to hold our individual pattern matching groups:
 	const rows = [[]];
@@ -47,26 +60,28 @@ function CSVToArray(CSV_string, delimiter = ',') {
 }
 
 function removeRedundantColumns(array) {
-	return array
-		.map(row => {
-			const [date, _, __, transactionDetails, ___, debit, credit] = row;
-			return [date, transactionDetails, debit, credit];
-		})
-		// remove useless rows
-		.filter(([firstColumn]) => !firstColumn.includes('Titular cont: '))
-		.filter((row, index, rows) => {
-			// the actual header
-			if (index === 0) {
-				return false;
-			}
-			// remove any occurrence of the header
-			const header = rows[0].join('');
-			if (header === row.join('')) {
-				return false;
-			}
-			return !!row.join('');
-		});
-
+	return (
+		array
+			.map(row => {
+				// eslint-disable-next-line no-unused-vars
+				const [date, _, __, transactionDetails, ___, debit, credit] = row;
+				return [date, transactionDetails, debit, credit];
+			})
+			// remove useless rows
+			.filter(([firstColumn]) => !firstColumn.includes('Titular cont: '))
+			.filter((row, index, rows) => {
+				// the actual header
+				if (index === 0) {
+					return false;
+				}
+				// remove any occurrence of the header
+				const header = rows[0].join('');
+				if (header === row.join('')) {
+					return false;
+				}
+				return Boolean(row.join(''));
+			})
+	);
 }
 
 function transformCSVToJSON(csv) {
@@ -85,14 +100,17 @@ function transformCSVToJSON(csv) {
 				}
 			];
 		} else {
-			finalData[finalData.length - 1].other = [...finalData[finalData.length - 1].other, transactionDetails];
+			finalData[finalData.length - 1].other = [
+				...finalData[finalData.length - 1].other,
+				transactionDetails
+			];
 			return finalData;
 		}
 	}, []);
 }
 
 function isTransactionBetweenOwnedAccounts(target) {
-	return target === 'Boicu Claudiu- Petronel';
+	return target === ACCOUNT_OWNER;
 }
 function getTarget(type, details) {
 	if (!KNOWN_TRANSACTION_TYPES.includes(type)) {
@@ -101,7 +119,9 @@ function getTarget(type, details) {
 
 	const isIgnored = IGNORED.includes(type);
 	if (!isIgnored) {
-		const hasTarget = [...TERMINAL, ...BENEFICIARY, ...ORDONATOR].includes(type);
+		const hasTarget = [...TERMINAL, ...BENEFICIARY, ...ORDONATOR].includes(
+			type
+		);
 		const detailsString = details.join('\n');
 		if (hasTarget) {
 			const regex = /(?:Terminal: |Beneficiar: |Ordonator: )(.*)/g;
@@ -158,27 +178,30 @@ function generateReportFromJSON(rows) {
 }
 
 function generateImportJSON(rows) {
-	return rows
-		.map(({date, type, debit, credit, other}) => {
-			const target = getTarget(type, other);
-			if (!target && !IGNORED.includes(type)) {
-				throw new TypeError('Target or Type is missing');
-			}
-			if (target && !isTransactionBetweenOwnedAccounts(target)) {
-				const category = getCategory(target);
-				const [day, monthName, year] = date.split(' ');
+	return (
+		rows
+			// eslint-disable-next-line array-callback-return
+			.map(({date, type, debit, credit, other}) => {
+				const target = getTarget(type, other);
+				if (!target && !IGNORED.includes(type)) {
+					throw new TypeError('Target or Type is missing');
+				}
+				if (target && !isTransactionBetweenOwnedAccounts(target)) {
+					const category = getCategory(target);
+					const [day, monthName, year] = date.split(' ');
 
-				return {
-					date: new Date(year, MONTHS[monthName] - 1, day).toISOString(),
-					entity: target,
-					total: debit || credit,
-					category,
-					paymentMethod: 'CARD',
-					transactionType: debit ? 'EXPENSE' : 'INCOME'
-				};
-			}
-		})
-		.filter(Boolean);
+					return {
+						date: new Date(year, MONTHS[monthName] - 1, day).toISOString(),
+						entity: target,
+						total: debit || credit,
+						category,
+						paymentMethod: 'CARD',
+						transactionType: debit ? 'EXPENSE' : 'INCOME'
+					};
+				}
+			})
+			.filter(Boolean)
+	);
 }
 
 module.exports = {

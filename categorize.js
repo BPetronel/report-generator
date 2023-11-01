@@ -36,9 +36,14 @@ const FOOD_CITY = [
 	'LA CASTEL',
 	'sushimaster.ro',
 	'BUENA VISTA',
-	'CHEZ LES AMIS'
+	'CHEZ LES AMIS',
+	'TOUJOURS',
+	'RETRO CAFE',
+	'ECADA',
+	'DOREMI',
+	'MEGA PIADINA'
 ];
-const JUNKFOOD = [
+const JUNK_FOOD = [
 	'TAJ MAHAL',
 	'VIVO',
 	'IVVI PROJECTS',
@@ -96,7 +101,16 @@ const HEALTH_MEDICAL = [
 	'DAVILLA FARM',
 	'HELP NET'
 ];
-const COFFEE = ['CAFENEAUA NOASTRA', 'LA FOLIE FOOD COURT', 'INSULA LA FOLIE', 'NOIR PALAS', "SENTI'S CAFE"];
+const COFFEE = [
+	'CAFENEAUA NOASTRA',
+	'LA FOLIE FOOD COURT',
+	'LA FOLIE',
+	'NOIR PALAS',
+	"SENTI'S CAFE",
+	'MATALA BISTRO',
+	'NOIR Piata Unirii',
+	'NOIR UMF'
+];
 const HOME = [
 	'DEDEMAN',
 	'ARABESQUE',
@@ -112,22 +126,30 @@ const HOME = [
 	'IKEA'
 ];
 const PAYCHECK = ['AREZZO SKY', 'ASCONT INTERNATIONAL', 'CEGEKA ROMANIA SRL'];
-const PERSONAL = [
+const HOBBY = [
 	'WWW.STEAMPOWERED.COM',
 	'STEAMGAMES.COM',
 	'STEAM PURCHASE',
-	'VECTOR AUTOGRAF',
-	'ALIEXPRESS.COM',
 	'LEX HOBBY',
-	'CLEVER TOYS'
+	'MOTO VELO SPORT'
 ];
+const PERSONAL = [];
 const TRANSPORTATION = ['COMPANIA TRANSPORT PUBL', 'BOLT.EU', 'UBER.COM'];
-const BOOKS = ['EP*burda.ro', 'ELEFANT.RO', 'PIM SRL', 'carturesti.ro', 'CARTURESTI'];
+const BOOKS = [
+	'EP*burda.ro',
+	'ELEFANT.RO',
+	'PIM SRL',
+	'carturesti.ro',
+	'CARTURESTI'
+];
 const INVESTMENTS = ['Tradeville S.A'];
-const CLOTHES = ['Deichmann', 'WAIKIKI', 'HERVIS'];
+const CLOTHES = ['Deichmann', 'WAIKIKI', 'HERVIS', 'ROUMASPORT'];
+const CAR = ['DOLY SRL'];
+const GAS = ['MOL', 'ROMPETROL'];
+
 const CATEGORIES = {
 	Food: FOOD,
-	JunkFood: JUNKFOOD,
+	JunkFood: JUNK_FOOD,
 	Utilities: UTILITIES,
 	'Food - City': FOOD_CITY,
 	Coffee: COFFEE,
@@ -138,13 +160,18 @@ const CATEGORIES = {
 	Transportation: TRANSPORTATION,
 	Books: BOOKS,
 	Investment: INVESTMENTS,
-	Clothes: CLOTHES
+	Clothes: CLOTHES,
+	Car: CAR,
+	Gas: GAS,
+	Hobby: HOBBY
 };
 
 function getCategory(target) {
 	let transactionCategory;
 	Object.entries(CATEGORIES).forEach(([category, stores]) => {
-		const isStoreInCategory = stores.some(store => target.toUpperCase().includes(store.toUpperCase()));
+		const isStoreInCategory = stores.some(store =>
+			target.toUpperCase().includes(store.toUpperCase())
+		);
 		if (isStoreInCategory) {
 			transactionCategory = category;
 		}
