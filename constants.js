@@ -28,7 +28,8 @@ const TERMINAL = [
 	'Cumparare POS corectie',
 	'Retragere numerar',
 	'Retragere numerar fara card',
-	'Depunere numerar'
+	'Depunere numerar',
+	'Reglare operatiune'
 ];
 const BENEFICIARY = ["Transfer Home'Bank", 'Plata online', 'Plata ATM'];
 const ORDONATOR = ['Incasare'];
